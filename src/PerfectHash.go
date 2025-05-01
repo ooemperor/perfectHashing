@@ -21,3 +21,11 @@ type PerfectHash struct {
 	// should be the size of the result space of the hash function
 	// should not use slices but rather a well-defined array
 }
+
+/*
+Join implements the interface but does nothing meaningful yet
+TODO: implement this function
+*/
+func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) (*ResultSet, error) {
+	return nil, nil
+}
