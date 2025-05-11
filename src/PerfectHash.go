@@ -27,5 +27,28 @@ Join implements the interface but does nothing meaningful yet
 TODO: implement this function
 */
 func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) (*ResultSet, error) {
+
+	// calculate the hashes for table2
+	hashArray2, err := table2.GetHashArray()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range table1.entries {
+		tmpEntry := table1.entries[i]
+		pos, err := tmpEntry.GetPosition()
+		if err != nil {
+			return nil, err
+		}
+
+		relatedEntry := hashArray2[pos]
+
+		if relatedEntry == nil {
+			// we did not found a match in the second table
+			// this is mainly used in left joins and comparable (not inner joins)
+		}
+	}
+
 	return nil, nil
 }
