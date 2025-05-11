@@ -1,10 +1,14 @@
 package src
 
+import (
+	"fmt"
+)
+
 /*
 IPerfectHash interfaces that specifies the functionalities for the perfect hash algorithm.
 */
 type IPerfectHash interface {
-	Join(table1 *ResultSet, table2 *ResultSet) (*ResultSet, error)
+	Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error)
 
 	/*
 		returns a pointer to the correlated ResultEntry after the HashJoin
@@ -23,11 +27,19 @@ type PerfectHash struct {
 }
 
 /*
+PerfectHashResult defines the object in which we store the result of a successful join.
+*/
+type PerfectHashResult struct {
+	Entry1 *ResultEntry
+	Entry2 *ResultEntry
+}
+
+/*
 Join implements the interface but does nothing meaningful yet
 TODO: implement this function
 */
-func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) (*ResultSet, error) {
-
+func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
+	var output []*PerfectHashResult
 	// calculate the hashes for table2
 	hashArray2, err := table2.GetHashArray()
 
@@ -47,8 +59,12 @@ func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) (*ResultSet, e
 		if relatedEntry == nil {
 			// we did not found a match in the second table
 			// this is mainly used in left joins and comparable (not inner joins)
+			fmt.Println("no match found")
 		}
+
+		output = append(output, &PerfectHashResult{tmpEntry, relatedEntry})
+
 	}
 
-	return nil, nil
+	return output, nil
 }

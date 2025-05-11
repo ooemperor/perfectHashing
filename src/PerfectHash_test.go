@@ -19,8 +19,14 @@ func TestPerfectHashJoin(t *testing.T) {
 
 	hasher := PerfectHash{}
 
-	r1 := ResultSet{}
-	r2 := ResultSet{}
+	e1 := ResultEntry{value: "v1"}
+	e2 := ResultEntry{value: "v2"}
+	e3 := ResultEntry{value: "v4"}
+	e4 := ResultEntry{value: "v1"}
+	e5 := ResultEntry{value: "v2"}
+
+	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
 
 	// result, err := hasher.Join(&r1, &r2)
 	_, err := hasher.Join(&r1, &r2)
