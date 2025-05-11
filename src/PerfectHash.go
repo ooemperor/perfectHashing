@@ -24,6 +24,7 @@ type PerfectHash struct {
 	// []*any should be a array that contains the pointers to the result set
 	// should be the size of the result space of the hash function
 	// should not use slices but rather a well-defined array
+	JoinType string // left or inner at the moment
 }
 
 /*
@@ -39,6 +40,10 @@ Join implements the interface but does nothing meaningful yet
 TODO: implement this function
 */
 func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
+	if ph.JoinType == "" {
+		ph.JoinType = "left"
+	}
+
 	var output []*PerfectHashResult
 	// calculate the hashes for table2
 	hashArray2, err := table2.GetHashArray()
@@ -60,11 +65,15 @@ func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHas
 			// we did not found a match in the second table
 			// this is mainly used in left joins and comparable (not inner joins)
 			fmt.Println("no match found")
+
+			if ph.JoinType == "left" {
+				// only append to the output if the JoinType is left
+				output = append(output, &PerfectHashResult{tmpEntry, relatedEntry})
+			}
+
+		} else {
+			output = append(output, &PerfectHashResult{tmpEntry, relatedEntry})
 		}
-
-		output = append(output, &PerfectHashResult{tmpEntry, relatedEntry})
-
 	}
-
 	return output, nil
 }
