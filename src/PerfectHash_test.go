@@ -29,19 +29,20 @@ func TestPerfectHashJoin(t *testing.T) {
 	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
 
 	// result, err := hasher.Join(&r1, &r2)
-	_, err := hasher.Join(&r1, &r2)
+	result, err := hasher.Join(&r1, &r2)
 
 	if err != nil {
 		t.Fatalf("Error encountered while joining two tables that should not Produce Error: %v", err)
 	}
 
-	// TODO: check the validity of the result
+	if len(result) != 3 {
+		t.Fatalf("Result length is wrong: %v", len(result))
+	}
 
 }
 
 /*
 TestPerfectHashJoinWithError Test if the join implementation is done with error when one is expected
-TODO: change the content of the test to a proper content after the implementation
 */
 func TestPerfectHashJoinWithError(t *testing.T) {
 	/*
@@ -69,7 +70,6 @@ func TestPerfectHashJoinWithError(t *testing.T) {
 
 /*
 TestPerfectHashGetRelatedEntry
-TODO: change the content of the test to a proper content after the implementation
 */
 func TestPerfectHashGetRelatedEntry(t *testing.T) {
 	/*
@@ -82,11 +82,39 @@ func TestPerfectHashGetRelatedEntry(t *testing.T) {
 		5) check if the related Entry is actually the one that we expect.
 	*/
 
+	hasher := PerfectHash{}
+
+	e1 := ResultEntry{value: "v1"}
+	e2 := ResultEntry{value: "v2"}
+	e3 := ResultEntry{value: "v4"}
+	e4 := ResultEntry{value: "v1"}
+	e5 := ResultEntry{value: "v2"}
+
+	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
+
+	relatedEntry, err := hasher.GetRelatedEntry(&e1, &r1, &r2)
+
+	if err != nil {
+		t.Fatalf("Error encountered while joining two tables that should not Produce Error: %v", err)
+	}
+
+	if relatedEntry == nil {
+		t.Fatalf("relatedEntry should not be nil when it should have been returned")
+	}
+
+	if relatedEntry.value != "v1" {
+		t.Fatalf("relatedEntry.value should be 'v1' when it should have been returned")
+	}
+
+	if relatedEntry != &e4 {
+		t.Fatalf("pointer to the expected result is incorrect, expected %v, got %v", &e4, &relatedEntry)
+	}
+
 }
 
 /*
 TestPerfectHashGetRelatedEntryNotFound tests if we receive the expected output if there is no Entry found for the PerfectHash
-TODO: change the content of the test to a proper content after the implementation
 */
 func TestPerfectHashGetRelatedEntryNotFound(t *testing.T) {
 	/*
@@ -97,4 +125,25 @@ func TestPerfectHashGetRelatedEntryNotFound(t *testing.T) {
 		3) select an entry from the second one, where we should not be able to find a match
 		4) check that we successfully receive an error since we do not find an entry
 	*/
+
+	hasher := PerfectHash{}
+
+	e1 := ResultEntry{value: "v1"}
+	e2 := ResultEntry{value: "v2"}
+	e3 := ResultEntry{value: "v4"}
+	e4 := ResultEntry{value: "v1"}
+	e5 := ResultEntry{value: "v2"}
+
+	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
+
+	relatedEntry, err := hasher.GetRelatedEntry(&e3, &r1, &r2)
+
+	if err != nil {
+		t.Fatalf("Error encountered while joining two tables that should not Produce Error: %v", err)
+	}
+
+	if relatedEntry != nil {
+		t.Fatalf("relatedEntry should be nil but got different value %v", relatedEntry)
+	}
 }

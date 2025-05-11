@@ -14,7 +14,7 @@ type IPerfectHash interface {
 		returns a pointer to the correlated ResultEntry after the HashJoin
 		expects that the ResultEntry provided is from the first array.
 	*/
-	GetRelatedEntry(entry *ResultEntry) (*ResultEntry, error)
+	GetRelatedEntry(entry *ResultEntry, table1 *ResultSet, table2 *ResultSet) (*ResultEntry, error)
 }
 
 /*
@@ -76,4 +76,21 @@ func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHas
 		}
 	}
 	return output, nil
+}
+
+/*
+GetRelatedEntry fetches the related entry from the other table
+*/
+func (ph *PerfectHash) GetRelatedEntry(entry *ResultEntry, table1 *ResultSet, table2 *ResultSet) (*ResultEntry, error) {
+
+	// calculate the hashes for table2
+	hashArray2, err := table2.GetHashArray()
+
+	if err != nil {
+		return nil, err
+	}
+	pos, err := entry.GetPosition()
+	relatedEntry := hashArray2[pos]
+
+	return relatedEntry, nil
 }
