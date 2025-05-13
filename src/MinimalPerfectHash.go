@@ -22,18 +22,28 @@ type MinimalPerfectHash struct {
 Join implements the interface but does nothing meaningful yet
 */
 func (mph *MinimalPerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
-	return nil, nil
+	var result []*PerfectHashResult
+	for _, entry1 := range table1.Entries {
+		relatedEntry, _ := mph.GetRelatedEntry(entry1)
+		result = append(result, &PerfectHashResult{entry1, relatedEntry})
+	}
+	return result, nil
 }
 
 /*
 GetRelatedEntry fetches the related entry from the other table
 */
-func (mph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry, table1 *ResultSet, table2 *ResultSet) (*ResultEntry, error) {
-	return nil, nil
+func (mph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry) (*ResultEntry, error) {
+	// fetch the bucket
+	bucketIndex, _ := entry.GetPosition()
+	seed := mph.SeedArray[bucketIndex]
+	pos, _ := entry.Hash(seed)
+
+	return mph.Results[pos], nil
 }
 
 /*
-Build constructs the Minimal PHF
+Build constructs the Minimal PHF and stores it in the struct
 */
 func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
 	buckets := BuildBuckets(mph.BucketCount)
