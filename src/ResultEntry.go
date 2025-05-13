@@ -15,10 +15,10 @@ this may be replaced by proper types later in this project
 */
 type ResultEntry struct {
 	// TODO: replace this with proper array and not slices if possible
-	value string
+	Value string
 }
 
 func (entry *ResultEntry) GetPosition() (uint32, error) {
 	crc32q := crc32.MakeTable(0xD5828281) // maybe this polynom needs to be adjusted later
-	return crc32.Checksum([]byte(entry.value), crc32q), nil
+	return crc32.Checksum([]byte(entry.Value), crc32q), nil
 }

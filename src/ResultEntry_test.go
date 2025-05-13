@@ -8,7 +8,7 @@ import (
 TestIResultEntryHash tests if the hashing returns the expected result
 */
 func TestResultEntryGetPosition(t *testing.T) {
-	rEntry := ResultEntry{value: "test"}
+	rEntry := ResultEntry{Value: "test"}
 	result, err := rEntry.GetPosition()
 
 	if err != nil {

@@ -8,12 +8,12 @@ import (
 TestResultSetGetHashArray checks if we receive a proper output for the TestResultSetGetHashArray
 */
 func TestResultSetGetHashArray(t *testing.T) {
-	rEntry := ResultEntry{value: "test"}
+	rEntry := ResultEntry{Value: "test"}
 	var entries []*ResultEntry
 
 	entries = append(entries, &rEntry)
 
-	rSet := ResultSet{entries: entries}
+	rSet := ResultSet{Entries: entries}
 
 	result, err := rSet.GetHashArray()
 
@@ -31,7 +31,7 @@ TestResultSetGetHashArrayEmptyInput checks if we receive an expected error for t
 */
 func TestResultSetGetHashArrayEmptyInput(t *testing.T) {
 	var entries []*ResultEntry
-	rSet := ResultSet{entries: entries}
+	rSet := ResultSet{Entries: entries}
 
 	_, err := rSet.GetHashArray()
 

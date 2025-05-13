@@ -1,5 +1,7 @@
 package src
 
+import "sort"
+
 type Bucket struct {
 	Keys        []string // used to store the values
 	bucketIndex uint32
@@ -28,4 +30,14 @@ func BuildBuckets(size uint32) []*Bucket {
 		output[i] = &Bucket{bucketIndex: uint32(i)}
 	}
 	return output
+}
+
+/*
+SortBuckets sorts the buckets by size descending
+*/
+func SortBuckets(buckets []*Bucket) {
+	//sort the buckets
+	sort.Slice(buckets, func(i, j int) bool {
+		return buckets[i].Size() > buckets[j].Size()
+	})
 }

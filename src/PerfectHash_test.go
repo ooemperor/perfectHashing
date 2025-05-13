@@ -19,14 +19,14 @@ func TestPerfectHashJoin(t *testing.T) {
 
 	hasher := PerfectHash{}
 
-	e1 := ResultEntry{value: "v1"}
-	e2 := ResultEntry{value: "v2"}
-	e3 := ResultEntry{value: "v4"}
-	e4 := ResultEntry{value: "v1"}
-	e5 := ResultEntry{value: "v2"}
+	e1 := ResultEntry{Value: "v1"}
+	e2 := ResultEntry{Value: "v2"}
+	e3 := ResultEntry{Value: "v4"}
+	e4 := ResultEntry{Value: "v1"}
+	e5 := ResultEntry{Value: "v2"}
 
-	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
-	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
+	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
 
 	// result, err := hasher.Join(&r1, &r2)
 	result, err := hasher.Join(&r1, &r2)
@@ -84,14 +84,14 @@ func TestPerfectHashGetRelatedEntry(t *testing.T) {
 
 	hasher := PerfectHash{}
 
-	e1 := ResultEntry{value: "v1"}
-	e2 := ResultEntry{value: "v2"}
-	e3 := ResultEntry{value: "v4"}
-	e4 := ResultEntry{value: "v1"}
-	e5 := ResultEntry{value: "v2"}
+	e1 := ResultEntry{Value: "v1"}
+	e2 := ResultEntry{Value: "v2"}
+	e3 := ResultEntry{Value: "v4"}
+	e4 := ResultEntry{Value: "v1"}
+	e5 := ResultEntry{Value: "v2"}
 
-	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
-	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
+	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
 
 	relatedEntry, err := hasher.GetRelatedEntry(&e1, &r1, &r2)
 
@@ -103,7 +103,7 @@ func TestPerfectHashGetRelatedEntry(t *testing.T) {
 		t.Fatalf("relatedEntry should not be nil when it should have been returned")
 	}
 
-	if relatedEntry.value != "v1" {
+	if relatedEntry.Value != "v1" {
 		t.Fatalf("relatedEntry.value should be 'v1' when it should have been returned")
 	}
 
@@ -128,14 +128,14 @@ func TestPerfectHashGetRelatedEntryNotFound(t *testing.T) {
 
 	hasher := PerfectHash{}
 
-	e1 := ResultEntry{value: "v1"}
-	e2 := ResultEntry{value: "v2"}
-	e3 := ResultEntry{value: "v4"}
-	e4 := ResultEntry{value: "v1"}
-	e5 := ResultEntry{value: "v2"}
+	e1 := ResultEntry{Value: "v1"}
+	e2 := ResultEntry{Value: "v2"}
+	e3 := ResultEntry{Value: "v4"}
+	e4 := ResultEntry{Value: "v1"}
+	e5 := ResultEntry{Value: "v2"}
 
-	r1 := ResultSet{entries: []*ResultEntry{&e1, &e2, &e3}}
-	r2 := ResultSet{entries: []*ResultEntry{&e4, &e5}}
+	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
+	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
 
 	relatedEntry, err := hasher.GetRelatedEntry(&e3, &r1, &r2)
 

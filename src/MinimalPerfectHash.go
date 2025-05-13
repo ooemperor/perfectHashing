@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -36,7 +37,7 @@ func (ph *MinimalPerfectHash) Build(table1 *ResultSet, table2 *ResultSet) {
 	buckets := BuildBuckets(bucketCount)
 
 	// Phase 1: insert the value into the Buckets
-	for _, entry := range table2.entries {
+	for _, entry := range table2.Entries {
 		// sort the entry into the buckets
 		tmpVal, err := entry.GetPosition()
 
@@ -46,6 +47,15 @@ func (ph *MinimalPerfectHash) Build(table1 *ResultSet, table2 *ResultSet) {
 
 		bucketIndex := tmpVal % bucketCount
 		tmpBucket := buckets[bucketIndex]
-		tmpBucket.Insert(entry.value)
+		tmpBucket.Insert(entry.Value)
+	}
+	// sort buckets
+	for i := range buckets {
+		fmt.Print(buckets[i].Size())
+	}
+	SortBuckets(buckets)
+
+	for i := range buckets {
+		fmt.Print(buckets[i].Size())
 	}
 }
