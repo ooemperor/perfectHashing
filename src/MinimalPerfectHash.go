@@ -36,8 +36,10 @@ GetRelatedEntry fetches the related entry from the other table
 func (mph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry) (*ResultEntry, error) {
 	// fetch the bucket
 	bucketIndex, _ := entry.GetPosition()
+	bucketIndex = bucketIndex % mph.BucketCount
 	seed := mph.SeedArray[bucketIndex]
-	pos, _ := entry.Hash(seed)
+	hash, _ := entry.Hash(seed)
+	pos := hash % uint32(len(mph.Results))
 
 	return mph.Results[pos], nil
 }
