@@ -1,6 +1,8 @@
 package src
 
 import (
+	"fmt"
+	"math/rand/v2"
 	"strconv"
 	"testing"
 )
@@ -121,7 +123,7 @@ func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 	}
 
 	if relatedEntry.Value != "v1" {
-		t.Fatalf("relatedEntry.value should be 'v1' when it should have been returned")
+		t.Fatalf("relatedEntry.value should be 'v1' when it should have been returned but is %v", relatedEntry.Value)
 	}
 
 	if relatedEntry != &e4 {
@@ -130,164 +132,61 @@ func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 
 }
 
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild1k100k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 1000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
+func BenchmarkMinimalPerfectHash_Build_1_Thread(b *testing.B) {
+	tests := []struct {
+		bucketCount int
+		entryCount  int
+		threadCount int
+	}{
+		{1000, 1000, 1},
+		{10000, 1000, 1},
+		{100000, 1000, 1},
+		{1000, 10000, 1},
+		{10000, 10000, 1},
+		{100000, 10000, 1},
+		{1000, 100000, 1},
+		{10000, 100000, 1},
+		{100000, 100000, 1},
 	}
 
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 100000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild10k100k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 10000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 100000}
-		_ = hasher.Build(r)
+	for _, tt := range tests {
+		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v", tt.bucketCount, tt.entryCount, tt.threadCount), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				rs := generateResultSet(tt.entryCount)
+				mph := &MinimalPerfectHash{
+					BucketCount:  uint32(tt.bucketCount),
+					ThreadsCount: uint32(tt.threadCount),
+				}
+				if err := mph.Build(rs); err != nil {
+					b.Fatalf("Build failed: %v", err)
+				}
+			}
+		})
 	}
 }
 
 /*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+BenchmarkMinimalPerfectHashLookup_100k Benchmarks the lookup of 100k values
 */
-func BenchmarkMinimalPerfectHashBuild100k100k(b *testing.B) {
+func BenchmarkMinimalPerfectHashLookup_100k(b *testing.B) {
 	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 100000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
+	r := generateResultSet(1000000)
+	hasher := MinimalPerfectHash{BucketCount: 100000}
+	_ = hasher.Build(r)
 
 	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 100000}
-		_ = hasher.Build(r)
+		randomVal := rand.Uint32N(100000)
+		re := ResultEntry{Value: strconv.Itoa(int(randomVal))}
+		_, _ = hasher.GetRelatedEntry(&re)
 	}
 }
 
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild1k10k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
+func generateResultSet(size int) *ResultSet {
 	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 1000 {
+	for i := range size {
 		re := ResultEntry{Value: strconv.Itoa(i)}
 
 		r.Entries = append(r.Entries, &re)
 	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 10000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild10k10k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 10000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 10000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild100k10k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 100000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 10000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild1k1k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 1000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 1000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild10k1k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 10000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 1000}
-		_ = hasher.Build(r)
-	}
-}
-
-/*
-BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
-*/
-func BenchmarkMinimalPerfectHashBuild100k1k(b *testing.B) {
-	// build the resultset once to not slow down the Benchmark
-	r := &ResultSet{Entries: []*ResultEntry{}}
-	for i := range 100000 {
-		re := ResultEntry{Value: strconv.Itoa(i)}
-
-		r.Entries = append(r.Entries, &re)
-	}
-
-	for b.Loop() {
-		hasher := MinimalPerfectHash{BucketCount: 1000}
-		_ = hasher.Build(r)
-	}
+	return r
 }

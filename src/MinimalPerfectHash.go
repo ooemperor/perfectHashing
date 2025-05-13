@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 )
@@ -12,10 +13,11 @@ type MinimalPerfectHash struct {
 	// []*any should be a array that contains the pointers to the result set
 	// should be the size of the result space of the hash function
 	// should not use slices but rather a well-defined array
-	JoinType    string // left or inner at the moment
-	BucketCount uint32
-	SeedArray   []uint32
-	Results     []*ResultEntry
+	JoinType     string // left or inner at the moment
+	BucketCount  uint32
+	SeedArray    []uint32
+	Results      []*ResultEntry
+	ThreadsCount uint32
 }
 
 /*
@@ -48,6 +50,9 @@ func (mph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry) (*ResultEntry
 Build constructs the Minimal PHF and stores it in the struct
 */
 func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
+	if mph.ThreadsCount == 0 {
+		mph.ThreadsCount = 1
+	}
 	buckets := BuildBuckets(mph.BucketCount)
 	seedArray := make([]uint32, mph.BucketCount)
 
@@ -73,51 +78,60 @@ func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
 	resultBitMap := make([]bool, len(table2.Entries))
 
 	// Phase 4: Start by hashing the buckets
-	for _, bucket := range buckets {
-		// go over the buckets
-		bucketSuccess := false
-		for !bucketSuccess {
-			seed := rand.Uint32()
-			tmpBitMap := make([]bool, len(table2.Entries))
-			collision := false
-			for _, entry := range bucket.Keys {
+	for i, bucket := range buckets {
+		if bucket.Size() == 0 {
+			continue
+		}
 
-				hash, _ := entry.Hash(seed)
-				posCand := hash % uint32(len(table2.Entries))
+		fmt.Printf("%v %v\r", bucket.Size(), i)
+		seedResult := SeedResult{Result: 0}
+		// search for a seed with multiple Threads
+		for range mph.ThreadsCount {
+			go searchSeed(table2, resultBitMap, &seedResult, bucket)
+		}
 
-				// check the current and resultBitMap for collisions
-				if tmpBitMap[posCand] == false && resultBitMap[posCand] == false {
-					// map the tmpBitMap to true and continue
-					tmpBitMap[posCand] = true
-				} else {
-					// we break the current seed loop
-					collision = true
-					break
-				}
-			}
+		for seedResult.Get() == 0 {
+		}
 
-			if !collision {
-				// we found a perfectly good mapping
-				bucketSuccess = true
-				seedArray[bucket.bucketIndex] = seed
-
-				for _, entry := range bucket.Keys {
-					hash, _ := entry.Hash(seed)
-					pos := hash % uint32(len(table2.Entries))
-					resultBitMap[pos] = true
-					resultArray[pos] = entry
-				}
-
-				// now update the resultLoop
-
-			} else {
-				// we continue with the outer loop and a new seed and try again
-				continue
-			}
+		seedArray[bucket.bucketIndex] = seedResult.Get()
+		for _, entry := range bucket.Keys {
+			hash, _ := entry.Hash(seedResult.Get())
+			pos := hash % uint32(len(table2.Entries))
+			resultBitMap[pos] = true
+			resultArray[pos] = entry
 		}
 	}
 	mph.SeedArray = seedArray
 	mph.Results = resultArray
-
 	return nil
+}
+
+/*
+searchSeed searches for a correct seed until there is one found
+used in the main build phase to enable multithreaded search
+*/
+func searchSeed(table2 *ResultSet, resultBitMap []bool, correctSeed *SeedResult, bucket *Bucket) {
+	for correctSeed.Get() == 0 {
+		seed := rand.Uint32()
+		tmpBitMap := make([]bool, len(table2.Entries))
+		collision := false
+		for _, entry := range bucket.Keys {
+
+			hash, _ := entry.Hash(seed)
+			posCand := hash % uint32(len(table2.Entries))
+
+			// check the current and resultBitMap for collisions
+			if tmpBitMap[posCand] == false && resultBitMap[posCand] == false {
+				// map the tmpBitMap to true and continue
+				tmpBitMap[posCand] = true
+			} else {
+				// we break the current seed loop
+				collision = true
+				break
+			}
+		}
+		if !collision && correctSeed.Get() == 0 {
+			correctSeed.Set(seed)
+		}
+	}
 }
