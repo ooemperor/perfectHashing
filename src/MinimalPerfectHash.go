@@ -1,8 +1,8 @@
 package src
 
 import (
-	"fmt"
 	"log"
+	"math/rand"
 )
 
 /*
@@ -12,29 +12,32 @@ type MinimalPerfectHash struct {
 	// []*any should be a array that contains the pointers to the result set
 	// should be the size of the result space of the hash function
 	// should not use slices but rather a well-defined array
-	JoinType string // left or inner at the moment
+	JoinType    string // left or inner at the moment
+	BucketCount uint32
+	SeedArray   []uint32
+	Results     []*ResultEntry
 }
 
 /*
 Join implements the interface but does nothing meaningful yet
 */
-func (ph *MinimalPerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
+func (mph *MinimalPerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
 	return nil, nil
 }
 
 /*
 GetRelatedEntry fetches the related entry from the other table
 */
-func (ph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry, table1 *ResultSet, table2 *ResultSet) (*ResultEntry, error) {
+func (mph *MinimalPerfectHash) GetRelatedEntry(entry *ResultEntry, table1 *ResultSet, table2 *ResultSet) (*ResultEntry, error) {
 	return nil, nil
 }
 
 /*
 Build constructs the Minimal PHF
 */
-func (ph *MinimalPerfectHash) Build(table1 *ResultSet, table2 *ResultSet) {
-	bucketCount := uint32(100)
-	buckets := BuildBuckets(bucketCount)
+func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
+	buckets := BuildBuckets(mph.BucketCount)
+	seedArray := make([]uint32, mph.BucketCount)
 
 	// Phase 1: insert the value into the Buckets
 	for _, entry := range table2.Entries {
@@ -45,17 +48,64 @@ func (ph *MinimalPerfectHash) Build(table1 *ResultSet, table2 *ResultSet) {
 			log.Fatalf("Error in GetRelatedEntry %v", err)
 		}
 
-		bucketIndex := tmpVal % bucketCount
+		bucketIndex := tmpVal % mph.BucketCount
 		tmpBucket := buckets[bucketIndex]
-		tmpBucket.Insert(entry.Value)
+		tmpBucket.Insert(entry)
 	}
-	// sort buckets
-	for i := range buckets {
-		fmt.Print(buckets[i].Size())
-	}
+
+	// Phase 2: Sort the buckets
 	SortBuckets(buckets)
 
-	for i := range buckets {
-		fmt.Print(buckets[i].Size())
+	// Phase 3: Init the result output array
+	resultArray := make([]*ResultEntry, len(table2.Entries))
+	resultBitMap := make([]bool, len(table2.Entries))
+
+	// Phase 4: Start by hashing the buckets
+	for _, bucket := range buckets {
+		// go over the buckets
+		bucketSuccess := false
+		for !bucketSuccess {
+			seed := rand.Uint32()
+			tmpBitMap := make([]bool, len(table2.Entries))
+			collision := false
+			for _, entry := range bucket.Keys {
+
+				hash, _ := entry.Hash(seed)
+				posCand := hash % uint32(len(table2.Entries))
+
+				// check the current and resultBitMap for collisions
+				if tmpBitMap[posCand] == false && resultBitMap[posCand] == false {
+					// map the tmpBitMap to true and continue
+					tmpBitMap[posCand] = true
+				} else {
+					// we break the current seed loop
+					collision = true
+					break
+				}
+			}
+
+			if !collision {
+				// we found a perfectly good mapping
+				bucketSuccess = true
+				seedArray[bucket.bucketIndex] = seed
+
+				for _, entry := range bucket.Keys {
+					hash, _ := entry.Hash(seed)
+					pos := hash % uint32(len(table2.Entries))
+					resultBitMap[pos] = true
+					resultArray[pos] = entry
+				}
+
+				// now update the resultLoop
+
+			} else {
+				// we continue with the outer loop and a new seed and try again
+				continue
+			}
+		}
 	}
+	mph.SeedArray = seedArray
+	mph.Results = resultArray
+
+	return nil
 }

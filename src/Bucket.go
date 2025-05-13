@@ -3,7 +3,7 @@ package src
 import "sort"
 
 type Bucket struct {
-	Keys        []string // used to store the values
+	Keys        []*ResultEntry // used to store the values
 	bucketIndex uint32
 }
 
@@ -17,7 +17,7 @@ func (bucket *Bucket) Size() int {
 /*
 Insert a key into the Bucket
 */
-func (bucket *Bucket) Insert(key string) {
+func (bucket *Bucket) Insert(key *ResultEntry) {
 	bucket.Keys = append(bucket.Keys, key)
 }
 
