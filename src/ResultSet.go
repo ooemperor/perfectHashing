@@ -16,7 +16,7 @@ this may be replaced by proper types later in this project
 */
 type ResultSet struct {
 	// TODO: replace the slices here with proper array if possible
-	entries []*ResultEntry
+	Entries []*ResultEntry
 }
 
 /*
@@ -25,8 +25,8 @@ GetHashArray is the function that constructs an array of given length for the Re
 func (rs *ResultSet) GetHashArray() ([]*ResultEntry, error) {
 	localArray := make([]*ResultEntry, 4294967296)
 
-	for i := range rs.entries {
-		hash, err := rs.entries[i].GetPosition()
+	for i := range rs.Entries {
+		hash, err := rs.Entries[i].GetPosition()
 
 		if err != nil {
 			return nil, err
@@ -35,7 +35,7 @@ func (rs *ResultSet) GetHashArray() ([]*ResultEntry, error) {
 		if localArray[hash] != nil {
 			return nil, fmt.Errorf("duplicate hash %d", hash)
 		}
-		localArray[hash] = rs.entries[i]
+		localArray[hash] = rs.Entries[i]
 	}
 
 	return localArray, nil

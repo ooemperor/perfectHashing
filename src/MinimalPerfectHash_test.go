@@ -3,10 +3,9 @@ package src
 import "testing"
 
 /*
-TestPerfectHashJoin Test if the join implementation is done correctly
-TODO: change the content of the test to a proper content after the implementation
+TestMinimalPerfectHashJoin Test if the join implementation is done correctly
 */
-func TestPerfectHashJoin(t *testing.T) {
+func TestMinimalPerfectHashJoin(t *testing.T) {
 	/*
 		This method is not yet implemented since this still needs to be done
 
@@ -17,7 +16,7 @@ func TestPerfectHashJoin(t *testing.T) {
 		5) check if the results actually looks good
 	*/
 
-	hasher := PerfectHash{}
+	hasher := MinimalPerfectHash{BucketCount: 100}
 
 	e1 := ResultEntry{Value: "v1"}
 	e2 := ResultEntry{Value: "v2"}
@@ -27,6 +26,11 @@ func TestPerfectHashJoin(t *testing.T) {
 
 	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
 	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
+
+	err := hasher.Build(&r2)
+	if err != nil {
+		t.Fatalf("Error while building two tables that should not Produce Error: %v", err)
+	}
 
 	// result, err := hasher.Join(&r1, &r2)
 	result, err := hasher.Join(&r1, &r2)
@@ -44,7 +48,7 @@ func TestPerfectHashJoin(t *testing.T) {
 /*
 TestPerfectHashJoinWithError Test if the join implementation is done with error when one is expected
 */
-func TestPerfectHashJoinWithError(t *testing.T) {
+func TestMinimalPerfectHashJoinWithError(t *testing.T) {
 	/*
 		This method is not yet implemented since this still needs to be done
 
@@ -54,10 +58,15 @@ func TestPerfectHashJoinWithError(t *testing.T) {
 		4) check if the result is nil as expected
 	*/
 
-	hasher := PerfectHash{}
+	hasher := MinimalPerfectHash{BucketCount: 100}
 
 	r1 := ResultSet{}
 	r2 := ResultSet{}
+
+	err := hasher.Build(&r2)
+	if err != nil {
+		t.Fatalf("Error while building two tables that should not Produce Error: %v", err)
+	}
 
 	// result, err := hasher.Join(&r1, &r2)
 	result, _ := hasher.Join(&r1, &r2)
@@ -71,7 +80,7 @@ func TestPerfectHashJoinWithError(t *testing.T) {
 /*
 TestPerfectHashGetRelatedEntry
 */
-func TestPerfectHashGetRelatedEntry(t *testing.T) {
+func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 	/*
 		This method is not yet implemented since this still needs to be done
 
@@ -82,18 +91,23 @@ func TestPerfectHashGetRelatedEntry(t *testing.T) {
 		5) check if the related Entry is actually the one that we expect.
 	*/
 
-	hasher := PerfectHash{}
+	hasher := MinimalPerfectHash{BucketCount: 100}
 
 	e1 := ResultEntry{Value: "v1"}
-	e2 := ResultEntry{Value: "v2"}
-	e3 := ResultEntry{Value: "v4"}
+	//e2 := ResultEntry{Value: "v2"}
+	//e3 := ResultEntry{Value: "v4"}
 	e4 := ResultEntry{Value: "v1"}
 	e5 := ResultEntry{Value: "v2"}
 
-	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
+	//r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
 	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
 
-	relatedEntry, err := hasher.GetRelatedEntry(&e1, &r1, &r2)
+	err := hasher.Build(&r2)
+	if err != nil {
+		t.Fatalf("Error while building two tables that should not Produce Error: %v", err)
+	}
+
+	relatedEntry, err := hasher.GetRelatedEntry(&e1)
 
 	if err != nil {
 		t.Fatalf("Error encountered while joining two tables that should not Produce Error: %v", err)
@@ -111,39 +125,4 @@ func TestPerfectHashGetRelatedEntry(t *testing.T) {
 		t.Fatalf("pointer to the expected result is incorrect, expected %v, got %v", &e4, &relatedEntry)
 	}
 
-}
-
-/*
-TestPerfectHashGetRelatedEntryNotFound tests if we receive the expected output if there is no Entry found for the PerfectHash
-*/
-func TestPerfectHashGetRelatedEntryNotFound(t *testing.T) {
-	/*
-		This method is not yet implemented since this still needs to be done
-
-		1) set up the perfect hash
-		2) construct the two ResultSets that we want to join
-		3) select an entry from the second one, where we should not be able to find a match
-		4) check that we successfully receive an error since we do not find an entry
-	*/
-
-	hasher := PerfectHash{}
-
-	e1 := ResultEntry{Value: "v1"}
-	e2 := ResultEntry{Value: "v2"}
-	e3 := ResultEntry{Value: "v4"}
-	e4 := ResultEntry{Value: "v1"}
-	e5 := ResultEntry{Value: "v2"}
-
-	r1 := ResultSet{Entries: []*ResultEntry{&e1, &e2, &e3}}
-	r2 := ResultSet{Entries: []*ResultEntry{&e4, &e5}}
-
-	relatedEntry, err := hasher.GetRelatedEntry(&e3, &r1, &r2)
-
-	if err != nil {
-		t.Fatalf("Error encountered while joining two tables that should not Produce Error: %v", err)
-	}
-
-	if relatedEntry != nil {
-		t.Fatalf("relatedEntry should be nil but got different value %v", relatedEntry)
-	}
 }

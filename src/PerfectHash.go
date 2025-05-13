@@ -52,8 +52,8 @@ func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHas
 		return nil, err
 	}
 
-	for i := range table1.entries {
-		tmpEntry := table1.entries[i]
+	for i := range table1.Entries {
+		tmpEntry := table1.Entries[i]
 		pos, err := tmpEntry.GetPosition()
 		if err != nil {
 			return nil, err
