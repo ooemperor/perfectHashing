@@ -1,6 +1,9 @@
 package src
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+)
 
 /*
 TestMinimalPerfectHashJoin Test if the join implementation is done correctly
@@ -125,4 +128,166 @@ func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 		t.Fatalf("pointer to the expected result is incorrect, expected %v, got %v", &e4, &relatedEntry)
 	}
 
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild1k100k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 1000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 100000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild10k100k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 10000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 100000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild100k100k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 100000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 100000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild1k10k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 1000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 10000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild10k10k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 10000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 10000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild100k10k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 100000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 10000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild1k1k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 1000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 1000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild10k1k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 10000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 1000}
+		_ = hasher.Build(r)
+	}
+}
+
+/*
+BenchmarkMinimalPerfectHashBuild Benchmarks the build phase of the minimal perfect Hashfunction
+*/
+func BenchmarkMinimalPerfectHashBuild100k1k(b *testing.B) {
+	// build the resultset once to not slow down the Benchmark
+	r := &ResultSet{Entries: []*ResultEntry{}}
+	for i := range 100000 {
+		re := ResultEntry{Value: strconv.Itoa(i)}
+
+		r.Entries = append(r.Entries, &re)
+	}
+
+	for b.Loop() {
+		hasher := MinimalPerfectHash{BucketCount: 1000}
+		_ = hasher.Build(r)
+	}
 }
