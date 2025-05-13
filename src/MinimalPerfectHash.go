@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"sync"
 )
 
 /*
@@ -86,12 +87,14 @@ func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
 		fmt.Printf("%v %v\r", bucket.Size(), i)
 		seedResult := SeedResult{Result: 0}
 		// search for a seed with multiple Threads
+		var wg sync.WaitGroup
+		wg.Add(int(mph.ThreadsCount))
+
 		for range mph.ThreadsCount {
-			go searchSeed(table2, resultBitMap, &seedResult, bucket)
+			go searchSeed(table2, resultBitMap, &seedResult, bucket, &wg)
 		}
 
-		for seedResult.Get() == 0 {
-		}
+		wg.Wait()
 
 		seedArray[bucket.bucketIndex] = seedResult.Get()
 		for _, entry := range bucket.Keys {
@@ -110,7 +113,8 @@ func (mph *MinimalPerfectHash) Build(table2 *ResultSet) error {
 searchSeed searches for a correct seed until there is one found
 used in the main build phase to enable multithreaded search
 */
-func searchSeed(table2 *ResultSet, resultBitMap []bool, correctSeed *SeedResult, bucket *Bucket) {
+func searchSeed(table2 *ResultSet, resultBitMap []bool, correctSeed *SeedResult, bucket *Bucket, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for correctSeed.Get() == 0 {
 		seed := rand.Uint32()
 		tmpBitMap := make([]bool, len(table2.Entries))

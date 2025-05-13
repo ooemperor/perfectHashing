@@ -23,8 +23,5 @@ func (sr *SeedResult) Set(res uint32) {
 Get returns the current result of the SeedResult
 */
 func (sr *SeedResult) Get() (res uint32) {
-	sr.mu.Lock()
-	res = sr.Result
-	sr.mu.Unlock()
-	return
+	return sr.Result
 }

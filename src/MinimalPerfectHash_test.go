@@ -132,7 +132,7 @@ func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 
 }
 
-func BenchmarkMinimalPerfectHash_Build_1_Thread(b *testing.B) {
+func BenchmarkMinimalPerfectHash_Build(b *testing.B) {
 	tests := []struct {
 		bucketCount int
 		entryCount  int
@@ -141,12 +141,64 @@ func BenchmarkMinimalPerfectHash_Build_1_Thread(b *testing.B) {
 		{1000, 1000, 1},
 		{10000, 1000, 1},
 		{100000, 1000, 1},
-		{1000, 10000, 1},
 		{10000, 10000, 1},
 		{100000, 10000, 1},
-		{1000, 100000, 1},
-		{10000, 100000, 1},
 		{100000, 100000, 1},
+		{1000, 1000, 2},
+		{10000, 1000, 2},
+		{100000, 1000, 2},
+		{10000, 10000, 2},
+		{100000, 10000, 2},
+		{100000, 100000, 2},
+		{1000, 1000, 4},
+		{10000, 1000, 4},
+		{100000, 1000, 4},
+		{10000, 10000, 4},
+		{100000, 10000, 4},
+		{100000, 100000, 4},
+		{1000, 1000, 8},
+		{10000, 1000, 8},
+		{100000, 1000, 8},
+		{10000, 10000, 8},
+		{100000, 10000, 8},
+		{100000, 100000, 8},
+		{1000, 1000, 16},
+		{10000, 1000, 16},
+		{100000, 1000, 16},
+		{10000, 10000, 16},
+		{100000, 10000, 16},
+		{100000, 100000, 16},
+		{1000, 1000, 32},
+		{10000, 1000, 32},
+		{100000, 1000, 32},
+		{10000, 10000, 32},
+		{100000, 10000, 32},
+		{100000, 100000, 32},
+	}
+
+	for _, tt := range tests {
+		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v", tt.bucketCount, tt.entryCount, tt.threadCount), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				rs := generateResultSet(tt.entryCount)
+				mph := &MinimalPerfectHash{
+					BucketCount:  uint32(tt.bucketCount),
+					ThreadsCount: uint32(tt.threadCount),
+				}
+				if err := mph.Build(rs); err != nil {
+					b.Fatalf("Build failed: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func BenchmarkMinimalPerfectHash_Build_Big(b *testing.B) {
+	tests := []struct {
+		bucketCount int
+		entryCount  int
+		threadCount int
+	}{
+		{1000000, 500000, 8},
 	}
 
 	for _, tt := range tests {
