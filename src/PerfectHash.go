@@ -37,7 +37,6 @@ type PerfectHashResult struct {
 
 /*
 Join implements the interface but does nothing meaningful yet
-TODO: implement this function
 */
 func (ph *PerfectHash) Join(table1 *ResultSet, table2 *ResultSet) ([]*PerfectHashResult, error) {
 	if ph.JoinType == "" {
