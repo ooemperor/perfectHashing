@@ -196,7 +196,7 @@ func BenchmarkMinimalPerfectHash_Build_Entries(b *testing.B) {
 	bucketCount := 10000
 	threadCount := 4
 
-	for val = range 100 {
+	for val := range 100 {
 		entries := 1000 * val
 		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%v", bucketCount, entries, threadCount, 1), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
