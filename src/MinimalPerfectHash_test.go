@@ -220,13 +220,17 @@ func BenchmarkMinimalPerfectHash_Build_Buckets(b *testing.B) {
 	threadCount := 4
 
 	for val := range 100 {
+		if val < 15 {
+			continue
+		}
 		buckets := val * 1000
-		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%v", buckets, entryCount, threadCount, 1), func(b *testing.B) {
+		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%v", buckets, entryCount, threadCount, 1.5), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				rs := generateResultSet(entryCount)
 				mph := &MinimalPerfectHash{
-					BucketCount:  uint32(buckets),
-					ThreadsCount: uint32(threadCount),
+					BucketCount:       uint32(buckets),
+					ThreadsCount:      uint32(threadCount),
+					ResultSpaceFactor: float64(1.5),
 				}
 				if err := mph.Build(rs); err != nil {
 					b.Fatalf("Build failed: %v", err)
@@ -238,22 +242,19 @@ func BenchmarkMinimalPerfectHash_Build_Buckets(b *testing.B) {
 }
 
 func BenchmarkMinimalPerfectHash_Build_Factors(b *testing.B) {
-	tt := struct {
-		bucketCount int
-		entryCount  int
-		threadCount int
-	}{10000, 100000, 4}
+	bucketCount := 10000
+	entryCount := 50000
+	threadCount := 4
 
 	var factor float64
 	factor = 1
-	for _ = range 10 {
-		factor += 0.1
-		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%f", tt.bucketCount, tt.entryCount, tt.threadCount, factor), func(b *testing.B) {
+	for _ = range 40 {
+		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%f", bucketCount, entryCount, threadCount, factor), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				rs := generateResultSet(tt.entryCount)
+				rs := generateResultSet(entryCount)
 				mph := &MinimalPerfectHash{
-					BucketCount:       uint32(tt.bucketCount),
-					ThreadsCount:      uint32(tt.threadCount),
+					BucketCount:       uint32(bucketCount),
+					ThreadsCount:      uint32(threadCount),
 					ResultSpaceFactor: factor,
 				}
 				if err := mph.Build(rs); err != nil {
@@ -262,32 +263,29 @@ func BenchmarkMinimalPerfectHash_Build_Factors(b *testing.B) {
 				// fmt.Println(len(mph.Results))
 			}
 		})
+		factor += 0.05
 	}
 }
 
 func BenchmarkMinimalPerfectHash_Build_Big(b *testing.B) {
-	tests := []struct {
-		bucketCount int
-		entryCount  int
-		threadCount int
-	}{
-		{100000, 500000, 8},
-	}
+	bucketCount := 200000
+	entryCount := 1000000
+	threadCount := 4
+	resultSpaceFactor := 2.0
 
-	for _, tt := range tests {
-		b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v", tt.bucketCount, tt.entryCount, tt.threadCount), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				rs := generateResultSet(tt.entryCount)
-				mph := &MinimalPerfectHash{
-					BucketCount:  uint32(tt.bucketCount),
-					ThreadsCount: uint32(tt.threadCount),
-				}
-				if err := mph.Build(rs); err != nil {
-					b.Fatalf("Build failed: %v", err)
-				}
+	b.Run(fmt.Sprintf("Buckets-%v-Entries-%v-Threads-%v-Factor-%f", bucketCount, entryCount, threadCount, resultSpaceFactor), func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			rs := generateResultSet(entryCount)
+			mph := &MinimalPerfectHash{
+				BucketCount:       uint32(bucketCount),
+				ThreadsCount:      uint32(threadCount),
+				ResultSpaceFactor: resultSpaceFactor,
 			}
-		})
-	}
+			if err := mph.Build(rs); err != nil {
+				b.Fatalf("Build failed: %v", err)
+			}
+		}
+	})
 }
 
 /*
