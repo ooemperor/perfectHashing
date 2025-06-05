@@ -4,7 +4,6 @@ import "testing"
 
 /*
 TestPerfectHashJoin Test if the join implementation is done correctly
-TODO: change the content of the test to a proper content after the implementation
 */
 func TestPerfectHashJoin(t *testing.T) {
 	/*

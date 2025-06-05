@@ -2,6 +2,17 @@ package src
 
 import "sort"
 
+/*
+IBucket interface definition for the below implemented Bucket
+*/
+type IBucket interface {
+	Size() int
+	Insert(*ResultEntry)
+}
+
+/*
+Bucket struct that defines the Bucket functionality
+*/
 type Bucket struct {
 	Keys        []*ResultEntry // used to store the values
 	bucketIndex uint32

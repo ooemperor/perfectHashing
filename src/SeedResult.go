@@ -3,7 +3,7 @@ package src
 import "sync"
 
 /*
-SeedResult synchronized obejct to enable multithreaded search for seeds.
+SeedResult synchronized obejct to enable multithreaded search for seeds that solve our search for the PerfectHashFunction
 */
 type SeedResult struct {
 	mu     sync.Mutex

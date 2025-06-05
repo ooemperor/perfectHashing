@@ -2,6 +2,9 @@ package src
 
 import "hash/crc32"
 
+/*
+IResultEntry defines the interface for the below implemented ResultEntry
+*/
 type IResultEntry interface {
 	GetPosition() (uint32, error)
 }

@@ -5,6 +5,12 @@ import (
 )
 
 /*
+The content of this file is the first implementation i have done and is not performant.
+It is though deprecated and should not be used.
+Please see the MinimalPerfectHash.go file for the second and much better implementation.
+*/
+
+/*
 IPerfectHash interfaces that specifies the functionalities for the perfect hash algorithm.
 */
 type IPerfectHash interface {

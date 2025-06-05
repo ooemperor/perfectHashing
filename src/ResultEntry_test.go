@@ -5,7 +5,7 @@ import (
 )
 
 /*
-TestIResultEntryHash tests if the hashing returns the expected result
+TestResultEntryGetPosition tests if the hashing returns the expected result
 */
 func TestResultEntryGetPosition(t *testing.T) {
 	rEntry := ResultEntry{Value: "test"}

@@ -83,7 +83,7 @@ func TestMinimalPerfectHashJoinWithError(t *testing.T) {
 }
 
 /*
-TestPerfectHashGetRelatedEntry
+TestPerfectHashGetRelatedEntry tests if we ind teh correct related entry
 */
 func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 	/*
@@ -132,6 +132,13 @@ func TestMinimalPerfectHashGetRelatedEntry(t *testing.T) {
 
 }
 
+/*
+BenchmarkMinimalPerfectHash_Build benchmarks the build phase with varying parameters
+Varying params:
+  - bucketCount
+  - entryCount
+  - threadCount
+*/
 func BenchmarkMinimalPerfectHash_Build(b *testing.B) {
 	tests := []struct {
 		bucketCount int
@@ -192,6 +199,10 @@ func BenchmarkMinimalPerfectHash_Build(b *testing.B) {
 	}
 }
 
+/*
+BenchmarkMinimalPerfectHash_Build_Entries benchmarks the build phase with varying amounts of Entries
+threads and buckets are fixed
+*/
 func BenchmarkMinimalPerfectHash_Build_Entries(b *testing.B) {
 	bucketCount := 10000
 	threadCount := 4
@@ -214,6 +225,10 @@ func BenchmarkMinimalPerfectHash_Build_Entries(b *testing.B) {
 	}
 }
 
+/*
+BenchmarkMinimalPerfectHash_Build_Buckets benchmarks the build phase with varying amounts of Buckets
+threads and entries are fixed
+*/
 func BenchmarkMinimalPerfectHash_Build_Buckets(b *testing.B) {
 
 	entryCount := 100000
@@ -241,6 +256,10 @@ func BenchmarkMinimalPerfectHash_Build_Buckets(b *testing.B) {
 	}
 }
 
+/*
+BenchmarkMinimalPerfectHash_Build_Factors benchmarks the build phase with varying values for the resultSize factor
+this factor is the amount of how much the resultArray should be made bigger than needed.
+*/
 func BenchmarkMinimalPerfectHash_Build_Factors(b *testing.B) {
 	bucketCount := 10000
 	entryCount := 50000
@@ -267,6 +286,10 @@ func BenchmarkMinimalPerfectHash_Build_Factors(b *testing.B) {
 	}
 }
 
+/*
+BenchmarkMinimalPerfectHash_Build_Big benchmarks the build phase with varying values for the resultSize factor
+this factor is the amount of how much the resultArray should be made bigger than needed.
+*/
 func BenchmarkMinimalPerfectHash_Build_Big(b *testing.B) {
 	bucketCount := 200000
 	entryCount := 1000000
@@ -289,7 +312,7 @@ func BenchmarkMinimalPerfectHash_Build_Big(b *testing.B) {
 }
 
 /*
-BenchmarkMinimalPerfectHashLookup_100k Benchmarks the lookup of 100k values
+BenchmarkMinimalPerfectHashLookup_100k_Factor_1 Benchmarks the lookup of 100k values with resultArray factor set to 1
 */
 func BenchmarkMinimalPerfectHashLookup_100k_Factor_1(b *testing.B) {
 	// build the resultset once to not slow down the Benchmark
@@ -304,6 +327,10 @@ func BenchmarkMinimalPerfectHashLookup_100k_Factor_1(b *testing.B) {
 	}
 }
 
+/*
+generateResultSet generates a generic ResultSet
+function is reused in the tests and benchmarks
+*/
 func generateResultSet(size int) *ResultSet {
 	r := &ResultSet{Entries: []*ResultEntry{}}
 	for i := range size {

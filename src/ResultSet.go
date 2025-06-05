@@ -2,6 +2,9 @@ package src
 
 import "fmt"
 
+/*
+IResultSet is the interface for the below implemented ResultSet
+*/
 type IResultSet interface {
 	/*
 		Get the array of pointers to the result set for the given hash function
